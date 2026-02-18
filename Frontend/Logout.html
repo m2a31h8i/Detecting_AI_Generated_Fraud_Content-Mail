@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Logout</title>
+    <style>
+    body {
+        margin: 0;
+        font-family: Arial, sans-serif;
+        background-color: #f0faff;
+        display: flex;
+        justify-content: center;   /* Horizontal center */
+        align-items: center;       /* Vertical center */
+        height: 100vh;             /* Full screen height */
+    }
+    .container {
+        background: white;
+        padding: 40px;
+        border-radius: 12px;
+        text-align: center;
+        box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+    }
+        html {
+        scroll-behavior: smooth;
+        background-color: #f0faff;
+        }
+        button {
+            background-color: #03396c;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #b3cde0;
+        }
+        #message {
+        color: green;
+        font-weight: bold;
+        margin-top: 15px;
+    }
+    </style>
+</head>
+<body>
+    <div class="container">
+    <h1>Logging Out</h1>
+    <p> Are you sure you want to log out?</p>
+    <button onclick="window.location.href='Dashboard.html'">Cancel</button>
+    <button onclick="logout()">Logout</button>
+    <p id="message" style="color: green; font-weight: bold;"></p>
+    </div>
+
+    <script>
+    function logout() {
+        document.getElementById("message").innerText = 
+            "You have been logged out successfully!";
+        
+        setTimeout(function() {
+            window.location.href = "Login.html";
+        }, 2000); // Redirect after 2 seconds
+    }
+</script>
+</body>
+</html>
