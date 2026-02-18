@@ -24,16 +24,22 @@
     position: sticky;
     top: 0;
     background: #2189ab;
-    color: white;
+    background: radial-gradient(circle at center, #2189ab, #03396c);
+    color: rgb(0, 0, 0);
     display: flex;
     align-items: center;
     justify-content: space-between;
     padding: 12px 40px;
     z-index: 1000;
+    position: relative;
+    border-left-style: double;
+    border-right-style: double;
+    border-top-style: double;
+    border-color: white;
 }
 
 .logo img {
-    height: 40px;
+    height: 50px;
     transition: transform 0.3s ease;
 }
 
@@ -42,14 +48,33 @@
 }
 
 .brand {
-    font-size: 24px;
+    position: absolute;
+    left: 9%;
+    transform: translateX(-50%);
+
+    font-size: 30px;
     font-weight: bold;
+    color: #24244a;
     letter-spacing: 2px;
+    text-transform: uppercase;
+    position: relative;
+    display: inline-block;
     transition: transform 0.3s ease;
 }
 
 .brand:hover {
-    transform: scale(1.1);
+    transform: translateX(-50%) scale(1.2);
+}
+
+.brand::after {
+    content: "";
+    position: absolute;
+    background-color: #03396c;
+    transition: 0.3s ease;
+}
+
+.brand:hover::after {
+    width: 100%;
 }
 
 .auth a {
@@ -67,6 +92,10 @@
         justify-content: flex-end;
         padding: 10px 0;
         overflow: hidden;
+        background: radial-gradient(circle at center, #2189ab, #03396c);
+        border-left-style: double;
+        border-right-style: double;
+        border-color: white;
     }
 
     .menu-navbar a {
@@ -89,16 +118,27 @@
     .Sub-Heading {
     text-align: center;
     transition: transform 0.3s ease;
+    background: radial-gradient(circle at center, #03396c, #2189ab);
+    color: white; 
+    padding: 10px; 
+    border-radius: 20%; 
+    border-style:double;
 }
 
 .Sub-Heading:hover {
     transform: scale(1.05);
 }
 
+#response {
+    font-weight: bold; 
+    padding-inline-start: 28%;
+}
+
 .contact-button {
-    padding-inline-start: 30%;
+    padding-inline-start: 27%;
     transition: transform 0.3s ease;
 }
+
 .contact-button:hover {
     transform: scale(1.1);
 }
@@ -133,7 +173,7 @@ button:hover {
         </div>
 
         <div class="auth">
-            <a href="Login.html">Login/Sign Up</a>
+            <a href="Login.html">Register</a>
         </div>
     </nav>
 
@@ -152,11 +192,10 @@ button:hover {
         <p>Here you can find insights and reports on fraud detection.</p>
     </section>
 </div>
-    <hr>
 
     <section id="contact"> 
-        <h2 style="background-color: #355a7c; color: white; padding: 10px; border-radius: 20%; border-style:double;" class="Sub-Heading">Contact Us</h2>
-            <div id="response" style=" font-weight: bold; padding-inline-start: 30%;">
+        <h2 class="Sub-Heading">Contact Us</h2>
+            <div id="response">
                 <form>
                 <label for="name">Name:</label><br>
                 <input type="text" id="name" name="name" placeholder="Enter your full name here"><br><br>
@@ -178,10 +217,8 @@ button:hover {
         </div>
     </section>
 
-    <hr>
-
     <section id="help">
-        <h2 style="background-color: #355a7c; color: white; padding: 10px; border-radius: 20%; border-style:double;" class="Sub-Heading">Help</h2>
+        <h2 class="Sub-Heading">Help</h2>
 
         <div id="main-content">
 
