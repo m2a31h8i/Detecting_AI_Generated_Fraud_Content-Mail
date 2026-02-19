@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Signup</title>
+<style>
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: radial-gradient(circle at center, #03396c, #2189ab);
+}
+
+.signup-box {
+    width: 400px;
+    padding: 40px;
+    border-radius: 15px;
+    backdrop-filter: blur(15px);
+    background: rgba(255, 255, 255, 0.1);
+    box-shadow: 0 8px 30px rgba(0,0,0,0.3);
+    color: white;
+    text-align: center;
+}
+
+.signup-box h2 {
+    margin-bottom: 30px;
+    letter-spacing: 1px;
+}
+
+.input-box {
+    margin-bottom: 20px;
+    text-align: left;
+}
+
+.input-box input {
+    width: 100%;
+    padding: 10px;
+    border-radius: 25px;
+    border: none;
+    outline: none;
+    background: rgba(255,255,255,0.2);
+    color: white;
+}
+
+.input-box input::placeholder {
+    color: #ddd;
+}
+
+.register-btn {
+    width: 100%;
+    padding: 10px;
+    border-radius: 25px;
+    border: none;
+    background: white;
+    color: #03396c;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.register-btn:hover {
+    background: #e0e0e0;
+}
+
+.login-link {
+    margin-top: 20px;
+    font-size: 14px;
+}
+
+.login-link a {
+    color: white;
+    font-weight: bold;
+    text-decoration: none;
+}
+
+.login-link a:hover {
+    text-decoration: underline;
+}
+
+.message {
+    margin-top: 15px;
+    font-size: 14px;
+    color: #d0ffd0;
+}
+</style>
+</head>
+<body>
+
+<div class="signup-box">
+    <h2>Create Account</h2>
+
+    <div class="input-box">
+        <input type="text" placeholder="Username" id="username">
+    </div>
+
+    <div class="input-box">
+        <input type="email" placeholder="Email" id="email">
+    </div>
+
+    <div class="input-box">
+        <input type="password" placeholder="Password" id="password">
+    </div>
+
+    <div class="input-box">
+        <input type="password" placeholder="Confirm Password" id="confirmPassword">
+    </div>
+
+    <button class="register-btn" onclick="signup()">Register</button>
+
+    <div class="message" id="message"></div>
+
+    <div class="login-link">
+        Already have an account? <a href="Login.html">Login</a>
+    </div>
+</div>
+
+<script>
+function signup(){
+    const username = document.getElementById('username').value.trim();
+    const email = document.getElementById('email').value.trim();
+    const password = document.getElementById('password').value;
+    const confirmPassword = document.getElementById('confirmPassword').value;
+    const messageBox = document.getElementById('message');
+
+    if(!username || !email || !password || !confirmPassword){
+        messageBox.textContent = "Please fill all fields.";
+        return;
+    }
+
+    if(password !== confirmPassword){
+        messageBox.textContent = "Passwords do not match.";
+        return;
+    }
+
+    // Simulate successful registration
+    messageBox.textContent = `Account created successfully for ${username}!`;
+    document.getElementById('username').value = '';
+    document.getElementById('email').value = '';
+    document.getElementById('password').value = '';
+    document.getElementById('confirmPassword').value = '';
+}
+</script>
+
+</body>
+</html>
