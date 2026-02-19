@@ -1,0 +1,67 @@
+# Virtual Environment
+venv/
+env/
+.env
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# ML Models (huge files, re-download via script)
+data/model_cache/
+*.bin
+*.safetensors
+*.pt
+*.pth
+
+# HuggingFace cache
+~/.cache/huggingface/
+
+# Database (contains analysis records)
+data/frauddb.sqlite
+*.sqlite
+*.db
+
+# ChromaDB (vector database files)
+data/chromadb/
+
+# spaCy models
+data/spacy_models/
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDE files
+.vscode/
+.idea/
+*.suo
+*.user
+
+# Logs
+*.log
+logs/
+
+# Test outputs
+.pytest_cache/
+htmlcov/
+.coverage
+
+# Temporary files
+*.tmp
+*.temp
+```
+
+---
+
+## Critical ones explained
+
+**`.env`** — most important. This file will contain API keys, database URLs, secrets. Never push it. Instead push a `.env.example` like this:
+```
+DATABASE_URL=sqlite:///./data/frauddb.sqlite
+CHROMADB_PATH=./data/chromadb
+OLLAMA_BASE_URL=http://localhost:11434
+LOG_LEVEL=INFO
