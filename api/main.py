@@ -8,7 +8,7 @@ from services.privacy_scrubber import PrivacyScrubber
 from services.risk_scorer import score_email
 from models.email_detector import EmailPhishingDetector
 
-app = FastAPI(title="AI Fraud Detector")
+app = FastAPI(title="FraudShield")
 
 app.add_middleware(
     CORSMiddleware,
@@ -30,15 +30,43 @@ class EmailRequest(BaseModel):
     body: str
 
 
-@app.get("/")
-def index(request: Request):
-    return templates.TemplateResponse("index.html", {"request": request})
+# ===== PAGE ROUTES =====
 
+@app.get("/")
+def login(request: Request):
+    return templates.TemplateResponse("Login.html", {"request": request})
+
+@app.get("/login")
+def login_page(request: Request):
+    return templates.TemplateResponse("Login.html", {"request": request})
+
+@app.get("/signup")
+def signup_page(request: Request):
+    return templates.TemplateResponse("Signup.html", {"request": request})
+
+@app.get("/dashboard")
+def dashboard(request: Request):
+    return templates.TemplateResponse("Dashboard.html", {"request": request})
+
+@app.get("/analysis")
+def analysis(request: Request):
+    return templates.TemplateResponse("Analysis.html", {"request": request})
+
+@app.get("/logout")
+def logout(request: Request):
+    return templates.TemplateResponse("Logout.html", {"request": request})
+
+@app.get("/forgot-password")
+def forgot_password(request: Request):
+    return templates.TemplateResponse("ForgotPassword.html", {"request": request})
+
+
+# ===== API ROUTES =====
 
 @app.post("/analyze/email")
 def analyze_email(req: EmailRequest):
-    scrubbed_subject, _             = scrubber.scrub(req.subject)
-    scrubbed_body,    content_hash  = scrubber.scrub(req.body)
+    scrubbed_subject, _            = scrubber.scrub(req.subject)
+    scrubbed_body,    content_hash = scrubber.scrub(req.body)
 
     result = detector.analyze(scrubbed_subject, scrubbed_body)
     risk   = score_email(result["module_score"], result["evidence_items"])
@@ -51,7 +79,6 @@ def analyze_email(req: EmailRequest):
         "processing_ms":    result["processing_ms"],
         "risk":             risk,
     }
-
 
 @app.get("/health")
 def health():

@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FraudShield</title>
+    <style>
+
+.main-content {
+    margin-left: 120px;   /* Adjust this value if needed */
+}
+
+    body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+    }
+
+    html {
+    scroll-behavior: smooth;
+    background-color: #f0faff;
+    }
+
+    .top-navbar {
+    position: sticky;
+    top: 0;
+    background: #2189ab;
+    background: radial-gradient(circle at center, #2189ab, #03396c);
+    color: rgb(0, 0, 0);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 40px;
+    z-index: 1000;
+    position: relative;
+    border-left-style: double;
+    border-right-style: double;
+    border-top-style: double;
+    border-color: white;
+}
+
+.logo img {
+    height: 50px;
+    transition: transform 0.3s ease;
+}
+
+.logo img:hover {
+    transform: scale(1.2);
+}
+
+.brand {
+    position: absolute;
+    left: 9%;
+    transform: translateX(-50%);
+
+    font-size: 30px;
+    font-weight: bold;
+    color: #24244a;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    position: relative;
+    display: inline-block;
+    transition: transform 0.3s ease;
+}
+
+.brand:hover {
+    transform: translateX(-50%) scale(1.2);
+}
+
+.brand::after {
+    content: "";
+    position: absolute;
+    background-color: #03396c;
+    transition: 0.3s ease;
+}
+
+.brand:hover::after {
+    width: 100%;
+}
+
+.auth a {
+    color: white;
+    text-decoration: none;
+    margin-left: 20px;
+    padding: 8px 16px;
+    border-radius: 5px;
+    transition: 0.3s;
+}
+
+    .menu-navbar {
+        background-color: #03396c;
+        display: flex;
+        justify-content: flex-end;
+        padding: 10px 0;
+        overflow: hidden;
+        background: radial-gradient(circle at center, #2189ab, #03396c);
+        border-left-style: double;
+        border-right-style: double;
+        border-color: white;
+    }
+
+    .menu-navbar a {
+        float: left;
+        display: block;
+        color: #f2f2f2;
+        text-align: center;
+        text-decoration: none;
+        margin: 0 20px;
+        padding: 8px 12px;
+        transition: 0.3s;
+        border-radius: 4px;
+    }
+
+    .menu-navbar a:hover {
+        background-color: #b3cde0;
+        color: black;
+    }
+
+.vid-bg {
+    position: relative;
+    height: 350px; /* adjust height */
+    overflow: hidden;
+}
+
+.vid-bg video {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    z-index: 0;
+    border-left: 3px solid white;
+    border-right: 3px solid white;
+    border-top: 3px solid white;
+    
+}
+
+.vid-bg-content {
+    position: relative;
+    z-index: 1;
+    color: rgb(11, 0, 81);
+    padding: 110px 0px;
+    margin-left: 120px;
+}
+
+    .Sub-Heading {
+    text-align: center;
+    transition: transform 0.3s ease;
+    background: radial-gradient(circle at center, #03396c, #2189ab);
+    color: white; 
+    padding: 10px; 
+    border-radius: 20%; 
+    border-style:double;
+}
+
+.Sub-Heading:hover {
+    transform: scale(1.05);
+}
+
+#response {
+    font-weight: bold; 
+    padding-inline-start: 28%;
+    color: #03396c;;
+}
+
+.contact-button {
+    padding-inline-start: 27%;
+    transition: transform 0.3s ease;
+}
+
+.contact-button:hover {
+    transform: scale(1.1);
+}
+
+button {
+            background-color: #03396c;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+button:hover {
+    background-color: #005b96;
+}
+
+.faq {
+    background: white;
+    margin: 12px auto;
+    padding: 12px 16px;
+    border-radius: 8px;
+    width: 70%;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    cursor: pointer;
+}
+
+.faq summary {
+    font-weight: bold;
+    font-size: 16px;
+    color: #03396c;
+}
+
+.faq p {
+    margin-top: 10px;
+    color: #444;
+}
+
+</style>
+</head>
+
+<body>
+
+        <nav class="top-navbar">
+        <div class="logo">
+            <img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" alt="Logo">
+        </div>
+
+        <div class="brand">
+            FRAUDSHIELD
+        </div>
+
+        <div class="auth">
+            <a href="Login.html">Register</a>
+        </div>
+    </nav>
+
+    <nav class="menu-navbar">
+       <a href="/dashboard">Home</a>
+<a href="/analysis">Analysis</a>
+<a href="/signup">Register</a>
+<a href="/logout">Logout</a>
+    </nav>
+
+<section class="vid-bg">
+    <video autoplay loop muted playsinline>
+        <source src="https://www.pexels.com/download/video/7565887/" 
+        type="video/mp4">
+    </video>
+
+    <div class="vid-bg-content">
+        <h2>Welcome to FraudShield Dashboard</h2>
+        <p>Here you can find insights and reports on fraud detection.</p>
+    </div>
+</section>
+
+
+    <section id="contact"> 
+        <h2 class="Sub-Heading" style="margin-top: 3px;">Contact Us</h2>
+            <div id="response">
+                <form>
+                <label for="name">Name:</label><br>
+                <input type="text" id="name" name="name" placeholder="Enter your full name here"><br><br>
+
+                <label for="email">Email:</label><br>
+                <input type="email" id="email" name="email" placeholder="Enter your email here" required><br><br>
+
+                <label for="message">Message:</label><br>
+                <textarea id="message" name="message" rows="2" cols="90" placeholder="Enter your message here..."></textarea><br><br>
+
+                <div class="contact-button">
+                    <button>Submit</button>
+                </div>
+                </form>
+            </div>
+        <div class="main-content">
+        <p>Email: fraudshield@gmail.com</p>
+        <p>Phone: 9876543210</p>
+        </div>
+    </section>
+
+    <section id="help">
+        <h2 class="Sub-Heading">Help</h2>
+
+    <div id="main-content">
+        <details class="faq">
+        <summary>How do I check that my credentials are on risk ?</summary>
+        <p>There is tab we provide named credentials risk , when you open that tab there is percentage of risk for your credentials are shown there</p>
+    </details>
+
+    <details class="faq">
+        <summary>How do I sign up ?</summary>
+        <p>Using your Google account or you can create a new one</p>
+    </details>
+
+    <details class="faq">
+        <summary>How do I sign in ?</summary>
+        <p>Using your Google account or using your account's username and password.</p>
+    </details>
+
+    <details class="faq">
+        <summary>How to check that the email I got is fraud ?</summary>
+        <p>There is tab named phishing mail , when click on it there is fraud percentage given and chances of risk given in low , medium and high levels</p>
+    </details>
+
+    <details class="faq">
+        <summary>What features your website provides to users ?</summary>
+        <p>Now we provide just email phishing and many more features are coming soon.</p>
+    </details>
+    </div>
+    </section>
+
+
+</body>
+</html>

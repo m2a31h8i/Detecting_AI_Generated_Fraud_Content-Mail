@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Logout</title>
+    <style>
+    body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: radial-gradient(circle at center, #03396c, #2189ab);
+        }
+
+        .logout-box {
+            width: 350px;
+            padding: 40px;
+            border-radius: 15px;
+            backdrop-filter: blur(15px);
+            background: rgba(255, 255, 255, 0.1);
+            box-shadow: 0 8px 30px rgba(0,0,0,0.3);
+            color: white;
+            text-align: center;
+        }
+
+        .logout-box h1 {
+            margin-bottom: 20px;
+        }
+
+        .logout-box p {
+            margin-bottom: 30px;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 10px;
+            border-radius: 25px;
+            border: none;
+            font-weight: bold;
+            cursor: pointer;
+            margin-bottom: 15px;
+            transition: 0.3s;
+        }
+
+        .cancel-btn {
+            background: rgba(255,255,255,0.3);
+            color: white;
+        }
+
+        .cancel-btn:hover {
+            background: rgba(255,255,255,0.5);
+        }
+
+        .logout-btn {
+            background: white;
+            color: #03396c;
+        }
+
+        .logout-btn:hover {
+            background: #e0e0e0;
+        }
+
+        #message {
+            margin-top: 15px;
+            font-weight: bold;
+            color: #00ffcc;
+        }
+    </style>
+</head>
+<body>
+    <div class="logout-box">
+        <h1>Logging Out</h1>
+        <p>Are you sure you want to log out?</p>
+
+        <button class="btn cancel-btn"
+            onclick="window.location.href='Dashboard.html'">
+            Cancel
+        </button>
+
+        <button class="btn logout-btn" onclick="logout()">
+            Logout
+        </button>
+
+        <p id="message"></p>
+    </div>
+
+    <script>
+        function logout() {
+            document.getElementById("message").innerText =
+                "You have been logged out successfully!";
+
+            setTimeout(function () {
+                window.location.href = "Login.html";
+            }, 2000);
+        }
+    </script>
+
+</body>
+</html>

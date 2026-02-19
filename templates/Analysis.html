@@ -1,0 +1,770 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FraudShield - Analysis</title>
+<style>
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    background-color: #f0faff;
+}
+
+.top-navbar {
+    position: sticky;
+    top: 0;
+    background: radial-gradient(circle at center, #2189ab, #03396c);
+    color: black;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 12px 350px;
+    border-left: double white;
+    border-right: double white;
+    border-top: double white;
+    z-index: 1000;
+}
+
+.brand {
+    font-size: 28px;
+    font-weight: bold;
+    color: #24244a;
+}
+
+/* ===== TABS ===== */
+.tabs {
+    display: flex;
+    gap: 0;
+    width: 95%;
+    margin: 20px auto 0 auto;
+    border-bottom: 2px solid #03396c;
+}
+
+.tab-btn {
+    padding: 10px 28px;
+    background: white;
+    border: 1px solid #03396c;
+    border-bottom: none;
+    color: #03396c;
+    font-weight: bold;
+    cursor: pointer;
+    border-radius: 8px 8px 0 0;
+    font-size: 14px;
+    transition: 0.2s;
+}
+
+.tab-btn.active {
+    background: #03396c;
+    color: white;
+}
+
+.tab-btn:hover:not(.active) {
+    background: #e0f0ff;
+}
+
+.tab-content {
+    display: none;
+    width: 95%;
+    margin: 0 auto;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+/* ===== PHISHING DETECTOR ===== */
+.detector-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin-top: 20px;
+}
+
+@media (max-width: 768px) { .detector-grid { grid-template-columns: 1fr; } }
+
+.card {
+    background: white;
+    border: 1px solid #dde;
+    border-radius: 12px;
+    padding: 20px;
+}
+
+.card-label {
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #888;
+    margin-bottom: 10px;
+    font-weight: bold;
+}
+
+select, input[type="text"] {
+    width: 100%;
+    background: #f7f9fc;
+    border: 1px solid #ccd;
+    border-radius: 8px;
+    color: #222;
+    font-family: Arial, sans-serif;
+    font-size: 13px;
+    padding: 10px 12px;
+    outline: none;
+    margin-bottom: 10px;
+    box-sizing: border-box;
+}
+
+textarea.email-input {
+    width: 100%;
+    background: #f7f9fc;
+    border: 1px solid #ccd;
+    border-radius: 8px;
+    color: #222;
+    font-family: Arial, sans-serif;
+    font-size: 13px;
+    padding: 10px 12px;
+    outline: none;
+    min-height: 160px;
+    resize: vertical;
+    box-sizing: border-box;
+}
+
+.analyse-btn {
+    width: 100%;
+    padding: 12px;
+    background: linear-gradient(135deg, #03396c, #2189ab);
+    border: none;
+    border-radius: 8px;
+    color: white;
+    font-weight: bold;
+    font-size: 14px;
+    cursor: pointer;
+    margin-top: 12px;
+    transition: opacity 0.2s;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.analyse-btn:hover { opacity: 0.88; }
+.analyse-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+/* Results */
+.results-card {
+    background: white;
+    border: 1px solid #dde;
+    border-radius: 12px;
+    padding: 20px;
+    margin-top: 20px;
+    display: none;
+}
+
+.results-card.visible { display: block; }
+
+.tier-badge {
+    display: inline-block;
+    padding: 6px 20px;
+    border-radius: 20px;
+    font-weight: bold;
+    font-size: 1rem;
+    color: white;
+    margin-bottom: 16px;
+}
+
+.score-row {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 20px;
+}
+
+.score-number {
+    font-size: 3rem;
+    font-weight: bold;
+    line-height: 1;
+    min-width: 80px;
+    color: #03396c;
+}
+
+.score-bar-wrap { flex: 1; }
+
+.score-bar-label {
+    font-size: 11px;
+    color: #888;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 6px;
+}
+
+.score-bar-track {
+    height: 8px;
+    background: #eee;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.score-bar-fill {
+    height: 100%;
+    border-radius: 4px;
+    transition: width 0.8s ease;
+    width: 0%;
+    background: #03396c;
+}
+
+.sub-scores {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    margin-bottom: 16px;
+}
+
+@media (max-width: 600px) { .sub-scores { grid-template-columns: repeat(2,1fr); } }
+
+.sub-card {
+    background: #f7f9fc;
+    border: 1px solid #dde;
+    border-radius: 8px;
+    padding: 12px;
+    text-align: center;
+}
+
+.sub-card .slabel {
+    font-size: 10px;
+    text-transform: uppercase;
+    color: #888;
+    margin-bottom: 4px;
+    letter-spacing: 0.08em;
+}
+
+.sub-card .svalue {
+    font-size: 1.3rem;
+    font-weight: bold;
+    color: #03396c;
+}
+
+.section-title {
+    font-size: 11px;
+    font-weight: bold;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #888;
+    margin-bottom: 8px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid #eee;
+}
+
+.summary-box {
+    background: #eef5ff;
+    border: 1px solid #c0d8f0;
+    border-radius: 8px;
+    padding: 14px;
+    font-size: 13px;
+    line-height: 1.6;
+    margin-bottom: 14px;
+    color: #03396c;
+}
+
+.evidence-list, .actions-list { list-style: none; padding: 0; margin: 0 0 14px 0; }
+
+.evidence-list li {
+    display: flex;
+    gap: 8px;
+    padding: 8px 0;
+    border-bottom: 1px solid #eee;
+    font-size: 13px;
+    color: #555;
+}
+
+.evidence-list li::before { content: '▸'; color: #e74c3c; flex-shrink: 0; }
+.evidence-list li:last-child { border-bottom: none; }
+
+.actions-list li {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 8px 0;
+    border-bottom: 1px solid #eee;
+    font-size: 13px;
+}
+
+.actions-list li:last-child { border-bottom: none; }
+
+.action-num {
+    background: #03396c;
+    color: white;
+    font-size: 11px;
+    font-weight: bold;
+    width: 20px; height: 20px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+}
+
+.meta {
+    font-size: 11px;
+    color: #aaa;
+    text-align: right;
+    margin-top: 10px;
+}
+
+.spinner-wrap {
+    text-align: center;
+    padding: 10px 0 0 0;
+    display: none;
+}
+
+.spinner {
+    width: 20px; height: 20px;
+    border: 2px solid rgba(255,255,255,0.3);
+    border-top-color: white;
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+    display: inline-block;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ===== ORIGINAL ANALYSIS TAB ===== */
+.analysis-box {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    margin-top: 20px;
+}
+
+.data-section {
+    display: flex;
+    gap: 20px;
+    margin-top: 20px;
+}
+
+.filter-panel {
+    width: 25%;
+    background: white;
+    padding: 15px;
+    border-radius: 10px;
+    height: fit-content;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+}
+
+.filter-panel h3 { color: #03396c; }
+
+.filter-panel input[type="text"],
+.filter-panel input[type="date"] {
+    width: 100%;
+    padding: 6px;
+    margin-bottom: 12px;
+    font-size: 13px;
+}
+
+.table-container {
+    width: 75%;
+    background: white;
+    padding: 15px;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+    overflow-x: auto;
+}
+
+table { width: 100%; border-collapse: collapse; }
+th { background: #03396c; color: white; padding: 10px; }
+td { padding: 10px; border-bottom: 1px solid #ddd; }
+
+.warning-high { color: red; font-weight: bold; }
+.warning-medium { color: orange; font-weight: bold; }
+.warning-low { color: green; font-weight: bold; }
+
+.filter-btn {
+    background: #03396c;
+    color: white;
+    padding: 8px 16px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-right: 6px;
+}
+
+.filter-btn:hover { background: #005b96; }
+.clear-btn { background: #888; }
+.clear-btn:hover { background: #666; }
+</style>
+</head>
+
+<body>
+
+<nav class="top-navbar">
+    <div class="brand">FRAUDSHIELD - Analysis</div>
+</nav>
+
+<!-- TABS -->
+<div class="tabs">
+    <button class="tab-btn active" onclick="switchTab('phishing')">🔍 Phishing Detector</button>
+    <button class="tab-btn" onclick="switchTab('history')">📋 Analysis History</button>
+</div>
+
+<!-- ===== TAB 1: PHISHING DETECTOR ===== -->
+<div class="tab-content active" id="tab-phishing">
+
+    <div class="detector-grid">
+
+        <!-- Input Card -->
+        <div class="card">
+            <div class="card-label">// Load Sample Email</div>
+            <select id="sampleSelect" onchange="loadSample()">
+                <option value="">— select a sample email —</option>
+                <option value="phishing1">🔴 PayPal Account Suspended</option>
+                <option value="phishing2">🔴 IRS Tax Refund Scam</option>
+                <option value="phishing3">🟠 Microsoft Security Alert</option>
+                <option value="legit1">✅ Monthly Account Summary (Legitimate)</option>
+            </select>
+
+            <div class="card-label">Subject Line</div>
+            <input type="text" id="subject" placeholder="Email subject...">
+
+            <div class="card-label">Email Body</div>
+            <textarea class="email-input" id="body" placeholder="Paste email body here..."></textarea>
+
+            <button class="analyse-btn" id="analyseBtn" onclick="analyseEmail()">
+                <span id="btnText">Analyse Email</span>
+                <span class="spinner" id="btnSpinner" style="display:none"></span>
+            </button>
+        </div>
+
+        <!-- How it works Card -->
+        <div class="card">
+            <div class="card-label">// How It Works</div>
+            <p style="font-size:13px; color:#444; line-height:1.7; margin-bottom:14px;">
+                Four independent models analyse the email simultaneously and are combined into a single risk score.
+            </p>
+            <div style="font-size:13px; color:#555; line-height:2;">
+                <div><span style="color:#03396c; font-weight:bold">BART Zero-Shot</span> <span style="float:right; color:#888">30%</span><br>
+                Classifies email as phishing / legitimate / spam.</div>
+                <hr style="border:none; border-top:1px solid #eee; margin:6px 0">
+                <div><span style="color:#03396c; font-weight:bold">RoBERTa AI Detector</span> <span style="float:right; color:#888">30%</span><br>
+                Detects whether the email was written by AI.</div>
+                <hr style="border:none; border-top:1px solid #eee; margin:6px 0">
+                <div><span style="color:#03396c; font-weight:bold">GPT-2 Perplexity</span> <span style="float:right; color:#888">20%</span><br>
+                Measures text fluency — AI emails score unnaturally low.</div>
+                <hr style="border:none; border-top:1px solid #eee; margin:6px 0">
+                <div><span style="color:#03396c; font-weight:bold">Pattern Matcher</span> <span style="float:right; color:#888">20%</span><br>
+                Regex library of known phishing tactics.</div>
+            </div>
+            <div style="margin-top:14px; font-size:12px; color:#888; background:#f7f9fc; border-radius:6px; padding:10px;">
+                🔴 CRITICAL ≥ 85 &nbsp;|&nbsp; 🟠 HIGH ≥ 65 &nbsp;|&nbsp; 🟡 MEDIUM ≥ 40 &nbsp;|&nbsp; 🟢 LOW ≥ 20 &nbsp;|&nbsp; ✅ SAFE &lt; 20
+            </div>
+        </div>
+    </div>
+
+    <!-- Results -->
+    <div class="results-card" id="resultsCard">
+        <div class="card-label">// Analysis Result</div>
+
+        <div id="tierBadge" class="tier-badge"></div>
+
+        <div class="score-row">
+            <div class="score-number" id="scoreNumber">--</div>
+            <div class="score-bar-wrap">
+                <div class="score-bar-label">Composite Risk Score / 100</div>
+                <div class="score-bar-track">
+                    <div class="score-bar-fill" id="scoreBarFill"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="section-title">Sub-Score Breakdown</div>
+        <div class="sub-scores">
+            <div class="sub-card"><div class="slabel">Zero-Shot</div><div class="svalue" id="ssZeroShot">--</div></div>
+            <div class="sub-card"><div class="slabel">AI Detector</div><div class="svalue" id="ssAiDetector">--</div></div>
+            <div class="sub-card"><div class="slabel">Perplexity</div><div class="svalue" id="ssPerplexity">--</div></div>
+            <div class="sub-card"><div class="slabel">Patterns</div><div class="svalue" id="ssPattern">--</div></div>
+        </div>
+
+        <div class="section-title">Summary</div>
+        <div class="summary-box" id="summaryBox"></div>
+
+        <div class="section-title">Evidence Signals</div>
+        <ul class="evidence-list" id="evidenceList"></ul>
+
+        <div class="section-title">Recommended Actions</div>
+        <ul class="actions-list" id="actionsList"></ul>
+
+        <div class="meta" id="processingMeta"></div>
+    </div>
+</div>
+
+<!-- ===== TAB 2: ANALYSIS HISTORY ===== -->
+<div class="tab-content" id="tab-history">
+    <div class="analysis-box">
+        <h2>Paste Email for History Log</h2>
+        <textarea id="mailInput" placeholder="Paste suspicious email here..." style="width:100%;height:100px;padding:10px;border-radius:6px;border:1px solid #ccc;resize:none;box-sizing:border-box;"></textarea>
+        <br>
+        <input type="file" id="mailFile" multiple style="margin-top:10px;">
+        <br><br>
+        <button class="filter-btn" onclick="analyzeMail()">Check & Log</button>
+    </div>
+
+    <div class="data-section">
+        <div class="filter-panel">
+            <h3>Filters</h3>
+            <label><b>Mail Content</b></label><br>
+            <label><input type="checkbox" class="contentFilter" value="credentials"> Credentials</label><br>
+            <label><input type="checkbox" class="contentFilter" value="threat"> Threat</label><br>
+            <label><input type="checkbox" class="contentFilter" value="website"> Website URL</label><br>
+            <label><input type="checkbox" class="contentFilter" value="link"> Link</label><br>
+            <label><input type="checkbox" class="contentFilter" value="files"> Files / Documents</label><br><br>
+
+            <label><b>Mail By</b></label><br>
+            <select id="filterSender" style="width:100%;padding:6px;margin-bottom:12px;">
+                <option value="">All</option>
+            </select>
+
+            <label><b>Warning</b></label><br>
+            <label><input type="checkbox" class="warningFilter" value="threat"> Threat</label><br>
+            <label><input type="checkbox" class="warningFilter" value="safe"> Safe</label><br><br>
+
+            <label><b>Date</b></label><br>
+            <input type="date" id="filterDate" style="width:100%;padding:6px;margin-bottom:12px;"><br>
+
+            <button class="filter-btn" onclick="applyFilters()">Apply</button>
+            <button class="filter-btn clear-btn" onclick="clearFilters()">Clear</button>
+        </div>
+
+        <div class="table-container">
+            <table id="mailTable">
+                <thead>
+                    <tr>
+                        <th>Mail Content</th>
+                        <th>Mail By</th>
+                        <th>Warning</th>
+                        <th>Date</th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody"></tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+// ===== TAB SWITCHING =====
+function switchTab(tab) {
+    document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('tab-' + tab).classList.add('active');
+    event.target.classList.add('active');
+}
+
+// ===== SAMPLE EMAILS =====
+const SAMPLES = {
+    phishing1: {
+        subject: "URGENT: Your PayPal account has been suspended",
+        body: `Dear Customer,\n\nYour PayPal account has been suspended due to suspicious activity. You must verify your credentials immediately or your account will be permanently closed within 24 hours.\n\nClick here to verify: http://paypal-secure-login.xyz/verify\n\nPlease enter your username, password, and credit card number to confirm your identity.\n\nThis is an automated message. Do not reply.\n\nPayPal Security Team`
+    },
+    phishing2: {
+        subject: "You have a pending IRS tax refund of $3,847.00",
+        body: `Congratulations! The IRS has determined you are entitled to a tax refund of $3,847.00.\n\nTo claim your refund act now as this expires today. Please provide your Social Security Number, bank account number, and routing number.\n\nFailure to respond will result in forfeiture and legal action.\n\nIRS Refund Department`
+    },
+    phishing3: {
+        subject: "Microsoft Security Alert: Unauthorized access detected",
+        body: `Dear Microsoft Account Holder,\n\nWe detected unauthorized access on your account. Your computer has been compromised and immediate action is required.\n\nClick here immediately: http://microsoft-security-verify.net/confirm\n\nYour account will be locked in 2 hours if you do not act now.\n\nMicrosoft Security Team`
+    },
+    legit1: {
+        subject: "Your monthly account summary — March 2024",
+        body: `Hi there,\n\nHere is your monthly account summary for March 2024.\n\nAccount balance: $1,234.56\nTransactions: 12\nTotal spent: $456.78\n\nIf you have questions, visit our website or call customer service.\n\nThank you for being a valued customer.\n\nCustomer Service Team`
+    }
+};
+
+function loadSample() {
+    const key = document.getElementById('sampleSelect').value;
+    if (!key) return;
+    document.getElementById('subject').value = SAMPLES[key].subject;
+    document.getElementById('body').value = SAMPLES[key].body;
+}
+
+// ===== PHISHING ANALYSER =====
+function tierColour(score) {
+    if (score >= 85) return '#e74c3c';
+    if (score >= 65) return '#e67e22';
+    if (score >= 40) return '#f1c40f';
+    if (score >= 20) return '#2ecc71';
+    return '#27ae60';
+}
+
+function tierEmoji(tier) {
+    return {CRITICAL:'🔴',HIGH:'🟠',MEDIUM:'🟡',LOW:'🟢',SAFE:'✅'}[tier] || '⚪';
+}
+
+async function analyseEmail() {
+    const subject = document.getElementById('subject').value.trim();
+    const body    = document.getElementById('body').value.trim();
+    if (!subject && !body) { alert('Please enter an email or select a sample.'); return; }
+
+    const btn = document.getElementById('analyseBtn');
+    document.getElementById('btnText').style.display = 'none';
+    document.getElementById('btnSpinner').style.display = 'inline-block';
+    btn.disabled = true;
+
+    try {
+        const res  = await fetch('/analyze/email', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ subject, body }),
+        });
+        const data = await res.json();
+        renderResults(data);
+
+        // Also log to history tab
+        logToHistory(body, data.risk.tier);
+    } catch(e) {
+        alert('Error reaching API. Make sure the server is running on port 8000.');
+    } finally {
+        document.getElementById('btnText').style.display = 'inline';
+        document.getElementById('btnSpinner').style.display = 'none';
+        btn.disabled = false;
+    }
+}
+
+function renderResults(data) {
+    const risk  = data.risk;
+    const score = risk.composite_score;
+    const tier  = risk.tier;
+    const colour = risk.colour;
+
+    const card = document.getElementById('resultsCard');
+    card.classList.add('visible');
+    card.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+    const badge = document.getElementById('tierBadge');
+    badge.textContent = `${tierEmoji(tier)} ${tier}`;
+    badge.style.background = colour;
+
+    document.getElementById('scoreNumber').textContent = score;
+    document.getElementById('scoreNumber').style.color = colour;
+
+    const fill = document.getElementById('scoreBarFill');
+    fill.style.background = colour;
+    setTimeout(() => { fill.style.width = score + '%'; }, 50);
+
+    const ss = data.sub_scores;
+    const fmt = v => (v * 100).toFixed(0) + '%';
+    document.getElementById('ssZeroShot').textContent   = fmt(ss.zero_shot_classifier);
+    document.getElementById('ssAiDetector').textContent = fmt(ss.ai_text_detector);
+    document.getElementById('ssPerplexity').textContent = fmt(ss.perplexity);
+    document.getElementById('ssPattern').textContent    = fmt(ss.pattern_matcher);
+
+    document.getElementById('summaryBox').textContent = risk.explanation.summary;
+
+    const evList = document.getElementById('evidenceList');
+    evList.innerHTML = '';
+    const evidence = risk.explanation.evidence.length ? risk.explanation.evidence : ['No specific signals detected.'];
+    evidence.forEach(e => {
+        const li = document.createElement('li');
+        li.textContent = e;
+        evList.appendChild(li);
+    });
+
+    const actList = document.getElementById('actionsList');
+    actList.innerHTML = '';
+    risk.explanation.actions.forEach((a, i) => {
+        const li  = document.createElement('li');
+        const num = document.createElement('div');
+        num.className = 'action-num';
+        num.textContent = i + 1;
+        const txt = document.createElement('span');
+        txt.textContent = a;
+        li.appendChild(num);
+        li.appendChild(txt);
+        actList.appendChild(li);
+    });
+
+    document.getElementById('processingMeta').textContent =
+        `Processed in ${data.processing_ms}ms · All analysis local · No data transmitted`;
+}
+
+// ===== HISTORY TAB =====
+const senderSet = new Set();
+
+function detectContentTags(text) {
+    const t = text.toLowerCase();
+    const tags = [];
+    if (t.includes("password") || t.includes("login") || t.includes("otp")) tags.push("credentials");
+    if (t.includes("urgent") || t.includes("suspend") || t.includes("verify")) tags.push("threat");
+    if (t.includes("http") || t.includes("www")) tags.push("website");
+    if (t.includes("link")) tags.push("link");
+    if (t.includes(".pdf") || t.includes(".doc") || t.includes("attachment")) tags.push("files");
+    return tags;
+}
+
+function logToHistory(text, tierOverride) {
+    const warning = tierOverride === 'SAFE' || tierOverride === 'LOW' ? 'Safe' : 'Threat';
+    addRowToHistory(text, warning);
+}
+
+function analyzeMail() {
+    const mailText = document.getElementById("mailInput").value.trim();
+    if (!mailText) return;
+    let warning = "Safe";
+    if (mailText.toLowerCase().includes("urgent") ||
+        mailText.toLowerCase().includes("password") ||
+        mailText.toLowerCase().includes("bank")) {
+        warning = "Threat";
+    }
+    addRowToHistory(mailText, warning);
+    document.getElementById("mailInput").value = "";
+}
+
+function addRowToHistory(text, warning) {
+    const sender  = "Unknown Sender";
+    const dateObj = new Date();
+    const dateDisplay = dateObj.toLocaleString();
+    const dateValue   = dateObj.toISOString().split("T")[0];
+    const tags = detectContentTags(text);
+
+    if (!senderSet.has(sender)) {
+        senderSet.add(sender);
+        const option = document.createElement("option");
+        option.value = sender;
+        option.textContent = sender;
+        document.getElementById("filterSender").appendChild(option);
+    }
+
+    const row = document.createElement("tr");
+    row.dataset.tags    = tags.join(",");
+    row.dataset.warning = warning.toLowerCase();
+    row.dataset.sender  = sender.toLowerCase();
+    row.dataset.date    = dateValue;
+
+    const warningClass = warning === "Threat" ? "warning-high" : "warning-low";
+    row.innerHTML = `
+        <td>${text.substring(0,120)}...</td>
+        <td>${sender}</td>
+        <td class="${warningClass}">${warning}</td>
+        <td>${dateDisplay}</td>
+    `;
+    document.getElementById("tableBody").prepend(row);
+}
+
+function applyFilters() {
+    const selectedContent  = [...document.querySelectorAll(".contentFilter:checked")].map(cb => cb.value);
+    const selectedWarnings = [...document.querySelectorAll(".warningFilter:checked")].map(cb => cb.value);
+    const senderValue = document.getElementById("filterSender").value.toLowerCase();
+    const dateValue   = document.getElementById("filterDate").value;
+
+    document.querySelectorAll("#tableBody tr").forEach(row => {
+        let show = true;
+        if (selectedContent.length > 0)  show = selectedContent.some(t => row.dataset.tags.includes(t));
+        if (show && selectedWarnings.length > 0) show = selectedWarnings.includes(row.dataset.warning);
+        if (show && senderValue) show = row.dataset.sender === senderValue;
+        if (show && dateValue)   show = row.dataset.date   === dateValue;
+        row.style.display = show ? "" : "none";
+    });
+}
+
+function clearFilters() {
+    document.querySelectorAll(".contentFilter, .warningFilter").forEach(cb => cb.checked = false);
+    document.getElementById("filterSender").value = "";
+    document.getElementById("filterDate").value   = "";
+    applyFilters();
+}
+</script>
+</body>
+</html>
