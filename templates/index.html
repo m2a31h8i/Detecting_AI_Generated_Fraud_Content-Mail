@@ -1,0 +1,740 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Fraud Detector — Phishing Email Analysis</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:        #0a0a0f;
+    --surface:   #111118;
+    --border:    #1e1e2e;
+    --accent:    #6c63ff;
+    --accent2:   #ff6584;
+    --text:      #e8e8f0;
+    --muted:     #6b6b85;
+    --safe:      #27ae60;
+    --low:       #2ecc71;
+    --medium:    #f1c40f;
+    --high:      #e67e22;
+    --critical:  #e74c3c;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Mono', monospace;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Background grid */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(108,99,255,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(108,99,255,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .container {
+    position: relative;
+    z-index: 1;
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 40px 24px;
+  }
+
+  /* Header */
+  header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 48px;
+  }
+
+  .logo {
+    width: 44px; height: 44px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px;
+  }
+
+  .header-text h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.5rem;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    color: var(--text);
+  }
+
+  .header-text p {
+    font-size: 0.72rem;
+    color: var(--muted);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-top: 2px;
+  }
+
+  .badge {
+    margin-left: auto;
+    background: rgba(108,99,255,0.12);
+    border: 1px solid rgba(108,99,255,0.3);
+    color: var(--accent);
+    font-size: 0.65rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 5px 12px;
+    border-radius: 20px;
+  }
+
+  /* Layout */
+  .grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+
+  @media (max-width: 768px) { .grid { grid-template-columns: 1fr; } }
+
+  /* Cards */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 24px;
+    transition: border-color 0.2s;
+  }
+
+  .card:hover { border-color: rgba(108,99,255,0.3); }
+
+  .card-label {
+    font-size: 0.65rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 12px;
+  }
+
+  /* Inputs */
+  input, textarea {
+    width: 100%;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    color: var(--text);
+    font-family: 'DM Mono', monospace;
+    font-size: 0.82rem;
+    padding: 12px 14px;
+    outline: none;
+    transition: border-color 0.2s, background 0.2s;
+    resize: vertical;
+  }
+
+  input:focus, textarea:focus {
+    border-color: var(--accent);
+    background: rgba(108,99,255,0.05);
+  }
+
+  input { margin-bottom: 12px; }
+  textarea { min-height: 180px; }
+
+  /* Sample selector */
+  select {
+    width: 100%;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    color: var(--text);
+    font-family: 'DM Mono', monospace;
+    font-size: 0.78rem;
+    padding: 10px 14px;
+    outline: none;
+    cursor: pointer;
+    margin-bottom: 16px;
+    appearance: none;
+  }
+
+  select option { background: #1a1a2e; }
+
+  /* Button */
+  .btn {
+    width: 100%;
+    padding: 14px;
+    background: linear-gradient(135deg, var(--accent), #8b5cf6);
+    border: none;
+    border-radius: 10px;
+    color: white;
+    font-family: 'Syne', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    cursor: pointer;
+    margin-top: 14px;
+    transition: opacity 0.2s, transform 0.1s;
+    text-transform: uppercase;
+  }
+
+  .btn:hover  { opacity: 0.9; }
+  .btn:active { transform: scale(0.99); }
+  .btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+
+  /* Results panel */
+  .results-panel {
+    grid-column: span 2;
+    display: none;
+  }
+
+  @media (max-width: 768px) { .results-panel { grid-column: span 1; } }
+
+  .results-panel.visible { display: block; }
+
+  /* Tier badge */
+  .tier-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 20px;
+    border-radius: 30px;
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 1rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+    border: 2px solid currentColor;
+  }
+
+  /* Score gauge */
+  .score-row {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+
+  .score-number {
+    font-family: 'Syne', sans-serif;
+    font-size: 3.5rem;
+    font-weight: 800;
+    line-height: 1;
+    min-width: 100px;
+  }
+
+  .score-bar-wrap {
+    flex: 1;
+  }
+
+  .score-bar-label {
+    font-size: 0.65rem;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+
+  .score-bar-track {
+    height: 8px;
+    background: var(--border);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+
+  .score-bar-fill {
+    height: 100%;
+    border-radius: 4px;
+    transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+    width: 0%;
+  }
+
+  /* Sub scores */
+  .sub-scores {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+
+  @media (max-width: 600px) { .sub-scores { grid-template-columns: repeat(2,1fr); } }
+
+  .sub-score-card {
+    background: rgba(255,255,255,0.02);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px;
+    text-align: center;
+  }
+
+  .sub-score-card .label {
+    font-size: 0.6rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 6px;
+  }
+
+  .sub-score-card .value {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.4rem;
+    font-weight: 700;
+  }
+
+  /* Evidence */
+  .evidence-list {
+    list-style: none;
+    margin-bottom: 20px;
+  }
+
+  .evidence-list li {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 0.8rem;
+    color: var(--muted);
+  }
+
+  .evidence-list li:last-child { border-bottom: none; }
+
+  .evidence-list li::before {
+    content: '▸';
+    color: var(--accent2);
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+
+  /* Summary box */
+  .summary-box {
+    background: rgba(108,99,255,0.06);
+    border: 1px solid rgba(108,99,255,0.2);
+    border-radius: 10px;
+    padding: 16px;
+    font-size: 0.82rem;
+    line-height: 1.6;
+    margin-bottom: 16px;
+    color: var(--text);
+  }
+
+  /* Actions */
+  .actions-list {
+    list-style: none;
+  }
+
+  .actions-list li {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 9px 0;
+    font-size: 0.8rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .actions-list li:last-child { border-bottom: none; }
+
+  .action-num {
+    background: var(--accent);
+    color: white;
+    font-family: 'Syne', sans-serif;
+    font-size: 0.65rem;
+    font-weight: 700;
+    width: 20px; height: 20px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+
+  /* Processing time */
+  .meta {
+    font-size: 0.65rem;
+    color: var(--muted);
+    text-align: right;
+    margin-top: 16px;
+    letter-spacing: 0.05em;
+  }
+
+  /* Spinner */
+  .spinner {
+    display: none;
+    width: 20px; height: 20px;
+    border: 2px solid rgba(255,255,255,0.2);
+    border-top-color: white;
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+    margin: 0 auto;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .btn.loading .btn-text { display: none; }
+  .btn.loading .spinner  { display: block; }
+
+  /* Section title */
+  .section-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  /* Fade in animation */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .results-panel.visible {
+    animation: fadeUp 0.4s ease forwards;
+  }
+
+  /* Divider */
+  .divider {
+    height: 1px;
+    background: var(--border);
+    margin: 20px 0;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <header>
+    <div class="logo">🛡️</div>
+    <div class="header-text">
+      <h1>AI Fraud Detector</h1>
+      <p>Phishing Email Analysis Engine — Fully Local</p>
+    </div>
+    <div class="badge">🟢 Offline Mode</div>
+  </header>
+
+  <div class="grid">
+
+    <!-- Input Card -->
+    <div class="card">
+      <div class="card-label">// Input</div>
+
+      <div class="card-label" style="margin-top:0">Load Sample</div>
+      <select id="sampleSelect" onchange="loadSample()">
+        <option value="">— select a sample email —</option>
+        <option value="phishing1">🔴 PayPal Account Suspended (Phishing)</option>
+        <option value="phishing2">🔴 IRS Tax Refund (Phishing)</option>
+        <option value="phishing3">🟠 Microsoft Security Alert (Phishing)</option>
+        <option value="legit1">✅ Monthly Account Summary (Legitimate)</option>
+      </select>
+
+      <div class="card-label">Subject</div>
+      <input type="text" id="subject" placeholder="Email subject line..." />
+
+      <div class="card-label">Email Body</div>
+      <textarea id="body" placeholder="Paste email body here..."></textarea>
+
+      <button class="btn" id="analyseBtn" onclick="analyseEmail()">
+        <span class="btn-text">Analyse Email</span>
+        <div class="spinner"></div>
+      </button>
+    </div>
+
+    <!-- Info Card -->
+    <div class="card">
+      <div class="card-label">// How It Works</div>
+
+      <div style="font-size:0.78rem; line-height:1.8; color:var(--muted);">
+        <p style="color:var(--text); margin-bottom:12px;">
+          Four independent models analyse the email simultaneously. Results are
+          weighted and combined into a single risk score.
+        </p>
+
+        <div style="margin-bottom:10px;">
+          <span style="color:var(--accent)">BART Zero-Shot</span>
+          <span style="float:right">30%</span><br>
+          Classifies email as phishing / legitimate / spam with no training needed.
+        </div>
+
+        <div style="margin-bottom:10px;">
+          <span style="color:var(--accent)">RoBERTa AI Detector</span>
+          <span style="float:right">30%</span><br>
+          Detects whether the email was written by an AI model.
+        </div>
+
+        <div style="margin-bottom:10px;">
+          <span style="color:var(--accent)">GPT-2 Perplexity</span>
+          <span style="float:right">20%</span><br>
+          Measures text fluency — AI phishing emails score unnaturally low.
+        </div>
+
+        <div style="margin-bottom:16px;">
+          <span style="color:var(--accent)">Pattern Matcher</span>
+          <span style="float:right">20%</span><br>
+          Regex library of known phishing tactics and social engineering phrases.
+        </div>
+
+        <div class="divider"></div>
+
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:12px; font-size:0.7rem;">
+          <div>🔴 CRITICAL ≥ 85</div>
+          <div>🟠 HIGH ≥ 65</div>
+          <div>🟡 MEDIUM ≥ 40</div>
+          <div>🟢 LOW ≥ 20</div>
+          <div>✅ SAFE &lt; 20</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Results Panel -->
+    <div class="card results-panel" id="resultsPanel">
+      <div class="card-label">// Analysis Result</div>
+
+      <div id="tierBadge" class="tier-badge"></div>
+
+      <div class="score-row">
+        <div class="score-number" id="scoreNumber">--</div>
+        <div class="score-bar-wrap">
+          <div class="score-bar-label">Composite Risk Score / 100</div>
+          <div class="score-bar-track">
+            <div class="score-bar-fill" id="scoreBarFill"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section-title">Sub-Score Breakdown</div>
+      <div class="sub-scores">
+        <div class="sub-score-card">
+          <div class="label">Zero-Shot</div>
+          <div class="value" id="ssZeroShot">--</div>
+        </div>
+        <div class="sub-score-card">
+          <div class="label">AI Detector</div>
+          <div class="value" id="ssAiDetector">--</div>
+        </div>
+        <div class="sub-score-card">
+          <div class="label">Perplexity</div>
+          <div class="value" id="ssPerplexity">--</div>
+        </div>
+        <div class="sub-score-card">
+          <div class="label">Patterns</div>
+          <div class="value" id="ssPattern">--</div>
+        </div>
+      </div>
+
+      <div class="section-title">Summary</div>
+      <div class="summary-box" id="summaryBox"></div>
+
+      <div class="section-title">Evidence Signals</div>
+      <ul class="evidence-list" id="evidenceList"></ul>
+
+      <div class="section-title">Recommended Actions</div>
+      <ul class="actions-list" id="actionsList"></ul>
+
+      <div class="meta" id="processingMeta"></div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+const SAMPLES = {
+  phishing1: {
+    subject: "URGENT: Your PayPal account has been suspended",
+    body: `Dear Customer,
+
+Your PayPal account has been suspended due to suspicious activity detected on your account. You must verify your credentials immediately or your account will be permanently closed within 24 hours.
+
+Click here to verify your account: http://paypal-secure-login.xyz/verify
+
+Please enter your username, password, and credit card number to confirm your identity and restore access.
+
+Failure to comply will result in legal action being taken against you.
+
+This is an automated message. Do not reply to this email.
+
+PayPal Security Team`
+  },
+  phishing2: {
+    subject: "You have a pending IRS tax refund of $3,847.00",
+    body: `Congratulations! The IRS has determined that you are entitled to a tax refund of $3,847.00.
+
+To claim your refund, you must act now as this offer expires today. Please provide your Social Security Number, bank account number, and routing number to receive your payment within 48 hours.
+
+Failure to respond immediately will result in forfeiture of your refund and potential legal action.
+
+Provide your full name, home address, and date of birth to verify your identity.
+
+IRS Refund Department`
+  },
+  phishing3: {
+    subject: "Microsoft Security Alert: Unauthorized access detected",
+    body: `Dear Microsoft Account Holder,
+
+We have detected unauthorized access attempts on your Microsoft account from an unknown device. Your computer has been compromised and immediate action is required.
+
+Suspicious activity detected on your account. You must verify your identity immediately by clicking the link below and entering your credentials:
+
+http://microsoft-security-verify.net/confirm
+
+Do not delay — your account will be locked in 2 hours if you do not act now. Provide your username, password, and billing information to restore access.
+
+Microsoft Security Team
+This is an automated message. Do not reply.`
+  },
+  legit1: {
+    subject: "Your monthly account summary — March 2024",
+    body: `Hi there,
+
+Here is your monthly account summary for March 2024.
+
+Account balance: $1,234.56
+Transactions this month: 12
+Total spent: $456.78
+
+If you have any questions about your account, please visit our website or call our customer service line during business hours. We are happy to help.
+
+Thank you for being a valued customer.
+
+Best regards,
+Customer Service Team`
+  }
+};
+
+function loadSample() {
+  const key = document.getElementById('sampleSelect').value;
+  if (!key) return;
+  const s = SAMPLES[key];
+  document.getElementById('subject').value = s.subject;
+  document.getElementById('body').value    = s.body;
+}
+
+function colourForScore(score) {
+  if (score >= 85) return getComputedStyle(document.documentElement).getPropertyValue('--critical').trim();
+  if (score >= 65) return getComputedStyle(document.documentElement).getPropertyValue('--high').trim();
+  if (score >= 40) return getComputedStyle(document.documentElement).getPropertyValue('--medium').trim();
+  if (score >= 20) return getComputedStyle(document.documentElement).getPropertyValue('--low').trim();
+  return getComputedStyle(document.documentElement).getPropertyValue('--safe').trim();
+}
+
+function tierEmoji(tier) {
+  return { CRITICAL:'🔴', HIGH:'🟠', MEDIUM:'🟡', LOW:'🟢', SAFE:'✅' }[tier] || '⚪';
+}
+
+async function analyseEmail() {
+  const subject = document.getElementById('subject').value.trim();
+  const body    = document.getElementById('body').value.trim();
+
+  if (!subject && !body) {
+    alert('Please enter an email subject and body, or select a sample.');
+    return;
+  }
+
+  const btn = document.getElementById('analyseBtn');
+  btn.classList.add('loading');
+  btn.disabled = true;
+
+  try {
+    const res  = await fetch('/analyze/email', {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify({ subject, body }),
+    });
+    const data = await res.json();
+    renderResults(data);
+  } catch (e) {
+    alert('Error reaching API. Make sure the server is running on port 8000.');
+    console.error(e);
+  } finally {
+    btn.classList.remove('loading');
+    btn.disabled = false;
+  }
+}
+
+function renderResults(data) {
+  const risk  = data.risk;
+  const score = risk.composite_score;
+  const tier  = risk.tier;
+  const colour = risk.colour;
+
+  // Show panel
+  const panel = document.getElementById('resultsPanel');
+  panel.classList.remove('visible');
+  void panel.offsetWidth; // reflow for animation
+  panel.classList.add('visible');
+  panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+  // Tier badge
+  const badge = document.getElementById('tierBadge');
+  badge.textContent = `${tierEmoji(tier)} ${tier}`;
+  badge.style.color       = colour;
+  badge.style.borderColor = colour;
+
+  // Score
+  document.getElementById('scoreNumber').textContent  = score;
+  document.getElementById('scoreNumber').style.color  = colour;
+  const fill = document.getElementById('scoreBarFill');
+  fill.style.background = colour;
+  setTimeout(() => { fill.style.width = score + '%'; }, 50);
+
+  // Sub scores
+  const ss = data.sub_scores;
+  const fmt = v => (v * 100).toFixed(0) + '%';
+  document.getElementById('ssZeroShot').textContent   = fmt(ss.zero_shot_classifier);
+  document.getElementById('ssAiDetector').textContent = fmt(ss.ai_text_detector);
+  document.getElementById('ssPerplexity').textContent = fmt(ss.perplexity);
+  document.getElementById('ssPattern').textContent    = fmt(ss.pattern_matcher);
+
+  // Colour sub-scores
+  ['ssZeroShot','ssAiDetector','ssPerplexity','ssPattern'].forEach((id, i) => {
+    const val = [ss.zero_shot_classifier, ss.ai_text_detector, ss.perplexity, ss.pattern_matcher][i];
+    document.getElementById(id).style.color = colourForScore(val * 100);
+  });
+
+  // Summary
+  document.getElementById('summaryBox').textContent = risk.explanation.summary;
+
+  // Evidence
+  const evList = document.getElementById('evidenceList');
+  evList.innerHTML = '';
+  const evidence = risk.explanation.evidence.length ? risk.explanation.evidence : ['No specific signals detected.'];
+  evidence.forEach(e => {
+    const li = document.createElement('li');
+    li.textContent = e;
+    evList.appendChild(li);
+  });
+
+  // Actions
+  const actList = document.getElementById('actionsList');
+  actList.innerHTML = '';
+  risk.explanation.actions.forEach((a, i) => {
+    const li  = document.createElement('li');
+    const num = document.createElement('div');
+    num.className   = 'action-num';
+    num.textContent = i + 1;
+    const txt = document.createElement('span');
+    txt.textContent = a;
+    li.appendChild(num);
+    li.appendChild(txt);
+    actList.appendChild(li);
+  });
+
+  // Meta
+  document.getElementById('processingMeta').textContent =
+    `Processed in ${data.processing_ms}ms  ·  All analysis local  ·  No data transmitted`;
+}
+
+// Allow Enter key in subject to jump to body
+document.getElementById('subject').addEventListener('keydown', e => {
+  if (e.key === 'Enter') { e.preventDefault(); document.getElementById('body').focus(); }
+});
+</script>
+</body>
+</html>

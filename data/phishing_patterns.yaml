@@ -1,0 +1,40 @@
+patterns:
+  - name: urgency_language
+    regex: "\\b(urgent|immediately|act now|expires today|limited time|deadline|asap|right away|do not delay)\\b"
+    weight: 0.8
+
+  - name: threat_language
+    regex: "\\b(your account (will be|has been) (suspended|terminated|closed|locked)|legal action|law enforcement|arrested|prosecuted)\\b"
+    weight: 0.9
+
+  - name: credential_request
+    regex: "\\b(verify your (password|credentials|account|identity|details)|enter your (pin|ssn|social security|credit card|bank))\\b"
+    weight: 1.0
+
+  - name: suspicious_link_text
+    regex: "\\b(click here|click below|click the link|follow this link|visit this link|open the link|access here)\\b"
+    weight: 0.6
+
+  - name: prize_or_reward
+    regex: "\\b(you('ve| have) (won|been selected|been chosen)|congratulations|prize|reward|gift card|free (money|iphone|gift))\\b"
+    weight: 0.85
+
+  - name: impersonation_language
+    regex: "\\b(paypal|amazon|microsoft|apple|google|irs|ssa|social security|your bank|your financial institution)\\b"
+    weight: 0.5
+
+  - name: wire_transfer_request
+    regex: "\\b(wire transfer|send money|western union|moneygram|bitcoin|gift card code|itunes card|google play card)\\b"
+    weight: 0.95
+
+  - name: personal_info_request
+    regex: "\\b(confirm your (address|date of birth|mother's maiden name|security question)|provide your (full name|home address))\\b"
+    weight: 0.9
+
+  - name: fear_language
+    regex: "\\b(your computer (has been|is) (infected|hacked|compromised)|virus detected|unauthorized access|suspicious activity detected)\\b"
+    weight: 0.85
+
+  - name: unusual_sender_notice
+    regex: "\\b(do not reply to this email|this is an automated message|do not share this (email|code|otp))\\b"
+    weight: 0.4
